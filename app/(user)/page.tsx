@@ -13,7 +13,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 
-export default function LoginPage() {
+export default function page() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -273,7 +273,7 @@ export default function LoginPage() {
               {loading ? "Signing you in…" : "Continue to Interinest"}
             </Button>
 
-            <div className="flex items-center gap-3 text-[11px] text-slate-400">
+            {/* <div className="flex items-center gap-3 text-[11px] text-slate-400">
               <div className="h-px flex-1 bg-[#e5d9c9]" />
               <span>or</span>
               <div className="h-px flex-1 bg-[#e5d9c9]" />
@@ -285,7 +285,7 @@ export default function LoginPage() {
               className="h-10 w-full rounded-xl border-[#e2d6c3] bg-white text-xs font-medium text-slate-700 hover:bg-[#f8f4ec]"
             >
               Continue with Google
-            </Button>
+            </Button> */}
           </form>
 
           <p className="mt-6 text-[11px] leading-relaxed text-slate-500">
