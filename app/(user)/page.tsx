@@ -13,7 +13,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 
-export default function page() {
+export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -56,7 +56,7 @@ export default function page() {
       let userDoc = null;
 
       // Check designers collection
-      const designerRef = doc(db, "designers", uid);
+      const designerRef = doc(db, "interinestUsers", uid);
       const designerSnap = await getDoc(designerRef);
       if (designerSnap.exists()) {
         userRole = "designer";
@@ -65,17 +65,17 @@ export default function page() {
 
       // Check admins collection if not found in designers
       if (!userRole) {
-        const adminRef = doc(db, "admins", uid);
+        const adminRef = doc(db, "interinestUsers", uid);
         const adminSnap = await getDoc(adminRef);
         if (adminSnap.exists()) {
-          userRole = "admin";
+          userRole = "administratorrr";
           userDoc = adminSnap.data();
         }
       }
 
       // Check users collection if not found in admins
       if (!userRole) {
-        const userRef = doc(db, "users", uid);
+        const userRef = doc(db, "interinestUsers", uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           userRole = "user";
@@ -272,8 +272,7 @@ export default function page() {
             >
               {loading ? "Signing you in…" : "Continue to Interinest"}
             </Button>
-
-            {/* <div className="flex items-center gap-3 text-[11px] text-slate-400">
+ <div className="flex items-center gap-3 text-[11px] text-slate-400">
               <div className="h-px flex-1 bg-[#e5d9c9]" />
               <span>or</span>
               <div className="h-px flex-1 bg-[#e5d9c9]" />
@@ -284,8 +283,8 @@ export default function page() {
               variant="outline"
               className="h-10 w-full rounded-xl border-[#e2d6c3] bg-white text-xs font-medium text-slate-700 hover:bg-[#f8f4ec]"
             >
-              Continue with Google
-            </Button> */}
+              Don't have an account? <Link href="/register" className="font-medium text-[#7593b4] hover:underline">Register Yourself</Link>
+            </Button>
           </form>
 
           <p className="mt-6 text-[11px] leading-relaxed text-slate-500">

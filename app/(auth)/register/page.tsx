@@ -134,7 +134,7 @@ export default function RegisterPage() {
       const phone = String(data.get("phone") || "").trim();
 
       const phoneQuery = query(
-        collection(db, "designers"),
+        collection(db, "interinestUsers"),
         where("phone", "==", phone)
       );
       const phoneSnapshot = await getDocs(phoneQuery);
@@ -173,8 +173,8 @@ export default function RegisterPage() {
         createdAt: serverTimestamp(),
       };
 
-      // Save to designers collection with uid
-      await setDoc(doc(db, "designers", uid), docData);
+      // Save to interinestUsers collection with uid
+      await setDoc(doc(db, "interinestUsers", uid), docData);
 
       // Auth token + role + uid cookies (3 days)
       const token = await cred.user.getIdToken();
