@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   // Get cookies
   const authToken = request.cookies.get("authToken")?.value;
   const role = request.cookies.get("role")?.value;
-  const uid = request.cookies.get("uid")?.value;
+  const uid = request.cookies.get("uid")?.value; 
 
   const isLoggedIn = !!(authToken && uid && role);
 
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
       let redirectPath = "/";
       
       if (role === "designer") redirectPath = "/designer-dashboard";
-      else if (role === "admin") redirectPath = "/admin";
+      else if (role === "admin" || role === "administratorrr") redirectPath = "/admin";
       else if (role === "user") redirectPath = "/user-dashboard";
 
       return NextResponse.redirect(new URL(redirectPath, request.url));
@@ -47,7 +47,7 @@ export function middleware(request: NextRequest) {
         let redirectPath = "/login";
         
         if (role === "designer") redirectPath = "/designer-dashboard";
-        else if (role === "admin") redirectPath = "/admin";
+        else if (role === "admin" || role === "administratorrr") redirectPath = "/admin";
         else if (role === "user") redirectPath = "/user-dashboard";
 
         return NextResponse.redirect(new URL(redirectPath, request.url));

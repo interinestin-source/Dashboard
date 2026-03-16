@@ -278,7 +278,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               }
               return (
                 <Link
-                  key={item.path}
+                  key={`${item.name}-${item.path}`}
                   href={item.path}
                   onClick={() => {
                     if (window.innerWidth < 1024) onToggle();

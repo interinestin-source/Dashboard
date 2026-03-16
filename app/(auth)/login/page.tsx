@@ -51,41 +51,24 @@ export default function LoginPage() {
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const uid = cred.user.uid;
 
-      // Check which collection the user belongs to
-      let userRole: string | null = null;
-      let userDoc = null;
-
-      // Check designers collection
-      const designerRef = doc(db, "interinestUsers", uid);
-      const designerSnap = await getDoc(designerRef);
-      if (designerSnap.exists()) {
-        userRole = "designer";
-        userDoc = designerSnap.data();
-      }
-
-      // Check admins collection if not found in designers
-      if (!userRole) {
-        const adminRef = doc(db, "interinestUsers", uid);
-        const adminSnap = await getDoc(adminRef);
-        if (adminSnap.exists()) {
-          userRole = "administratorrr";
-          userDoc = adminSnap.data();
-        }
-      }
-
-      // Check users collection if not found in admins
-      if (!userRole) {
-        const userRef = doc(db, "interinestUsers", uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          userRole = "user";
-          userDoc = userSnap.data();
-        }
-      }
-
-      // If no role found, user is not registered properly
-      if (!userRole) {
+      // Resolve role from user document
+      const userRef = doc(db, "interinestUsers", uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
         toast.error("Account not found. Please register first.");
+        setLoading(false);
+        return;
+      }
+
+      const userData = userSnap.data();
+      const rawRole = String(userData?.role || "").trim().toLowerCase();
+      let userRole: string | null = null;
+      if (rawRole === "designer") userRole = "designer";
+      else if (rawRole === "admin" || rawRole === "administratorrr") userRole = "admin";
+      else if (rawRole === "user") userRole = "user";
+
+      if (!userRole) {
+        toast.error("Your account role is not valid. Contact support.");
         setLoading(false);
         return;
       }
@@ -108,6 +91,8 @@ export default function LoginPage() {
         router.push("/admin");
       } else if (userRole === "user") {
         router.push("/user-dashboard");
+      } else {
+        router.push("/");
       }
     } catch (err) {
       console.error(err);

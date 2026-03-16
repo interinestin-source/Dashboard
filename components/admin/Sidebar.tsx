@@ -67,19 +67,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   //   }
   //   fetchUserDetails();
   // }, [uid]);
-  const navigation = [
-    { name: "Dashboard", path: "/designer-dashboard", icon: Home },
-    { name: "Projects", path: "/designer-dashboard", icon: Barcode },
-    { name: "Designers", path: "/designer-dashboard", icon: User2 },
+  type SidebarSubItem = {
+  name: string;
+  path: string;
+};
 
-    {
-      name: "Projects",
-      icon: Barcode,
-      dropdown: [
-        { name: "Add Projects", path: "/designer-dashboard/projects/add" },
-        { name: "My Projects", path: "/designer-dashboard/projects" },
-      ],
-    },
+type SidebarItem = {
+  name: string;
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+  dropdown?: SidebarSubItem[];
+};
+
+const navigation: SidebarItem[] = [
+    { name: "Dashboard", path: "/admin", icon: Home },
+    { name: "Projects", path: "/admin/projects", icon: Barcode },
+    { name: "Designers", path: "/admin/designers", icon: User2 },
+    { name: "Users", path: "/admin/users", icon: User2 },
+    { name: "Enquiries", path: "/admin/enquiries", icon: HelpCircle },
+
+
+
+
+
+
+    // {
+    //   name: "Projects",
+    //   icon: Barcode,
+    //   dropdown: [
+    //     { name: "Add Projects", path: "/designer-dashboard/projects/add" },
+    //     { name: "My Projects", path: "/designer-dashboard/projects" },
+    //   ],
+    // },
     // {
     //   name: "Enquiries",
     //   icon: Send,
@@ -105,8 +124,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     // },
   ];
 
-  const isDropdownActive = (dropdown: { path: string }[]) =>
-    dropdown.some((sub) => isActive(sub.path));
+  const isDropdownActive = (dropdown?: SidebarSubItem[]) =>
+    Array.isArray(dropdown) && dropdown.some((sub) => isActive(sub.path));
   const isActive = (path: string) => pathname === path;
 
   return (
@@ -158,10 +177,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">
-                  Unknown Designer
+                  Admin
                 </p>
                 <p className="text-xs text-gray-600 truncate">
-                  Interiror Designer
+                  Interinest
                 </p>
               </div>
 
@@ -276,7 +295,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                       <div className="ml-8 mt-1 space-y-1">
                         {item.dropdown.map((sub) => (
                           <Link
-                            key={sub.path}
+                            key={`${sub.name}-${sub.path}`}
                             href={sub.path}
                             onClick={() => {
                               if (window.innerWidth < 1024) onToggle();
@@ -297,7 +316,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               }
               return (
                 <Link
-                  key={item.path}
+                  key={`${item.name}-${item.path}`}
                   href={item.path}
                   onClick={() => {
                     if (window.innerWidth < 1024) onToggle();
