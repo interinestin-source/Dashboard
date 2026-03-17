@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -33,11 +33,11 @@ export default function Users({ recent = false, pageSize = 10, showPagination = 
         const usersRef = collection(db, "interinestUsers");
         const q = query(usersRef, where("role", "==", "user"));
         const snapshot = await getDocs(q);
-        const userList = snapshot.docs.map((doc) => ({
+        const list = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...(doc.data() as Omit<UserAccount, "id">),
         }));
-        const sorted = userList.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+        const sorted = list.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
         setUsers(sorted);
       } catch (err) {
         console.error("Failed to load users", err);
@@ -46,7 +46,6 @@ export default function Users({ recent = false, pageSize = 10, showPagination = 
         setLoading(false);
       }
     };
-
     void fetchUsers();
   }, []);
 
@@ -70,7 +69,7 @@ export default function Users({ recent = false, pageSize = 10, showPagination = 
         </div>
         {recent && (
           <Link href="/admin/users" className="text-xs font-semibold text-blue-600 hover:text-blue-700">
-            View more ?
+            View more →
           </Link>
         )}
       </div>
@@ -97,7 +96,7 @@ export default function Users({ recent = false, pageSize = 10, showPagination = 
                 {displayUsers.map((user) => (
                   <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
                     <td className="py-2 pr-3 font-medium text-slate-700">{user.fullName || "No name"}</td>
-                    <td className="py-2 pr-3 text-slate-600">{user.email || "�"}</td>
+                    <td className="py-2 pr-3 text-slate-600">{user.email || "—"}</td>
                     <td className="py-2 pr-3 text-slate-600">{user.role || "user"}</td>
                     <td className="py-2 pr-3 text-slate-500">{user.id}</td>
                   </tr>
@@ -110,21 +109,9 @@ export default function Users({ recent = false, pageSize = 10, showPagination = 
             <div className="mt-3 flex items-center justify-between text-xs text-slate-600">
               <div>{`Showing ${displayUsers.length} of ${users.length}`}</div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="rounded border border-slate-300 px-2 py-1 disabled:opacity-50"
-                >
-                  Prev
-                </button>
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="rounded border border-slate-300 px-2 py-1 disabled:opacity-50">Prev</button>
                 <span>{`Page ${page} / ${pageCount}`}</span>
-                <button
-                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                  disabled={page === pageCount}
-                  className="rounded border border-slate-300 px-2 py-1 disabled:opacity-50"
-                >
-                  Next
-                </button>
+                <button onClick={() => setPage((p) => Math.min(pageCount, p + 1))} disabled={page === pageCount} className="rounded border border-slate-300 px-2 py-1 disabled:opacity-50">Next</button>
               </div>
             </div>
           )}
