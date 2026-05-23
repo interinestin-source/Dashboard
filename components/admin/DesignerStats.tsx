@@ -1,66 +1,104 @@
-import React, { useMemo } from "react";
+"use client";
 
-export type DesignerStatus = "pending" | "approved" | "rejected";
+import React, { useEffect, useState } from "react";
+import { db } from "@/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
-export type Designer = {
-  id: string;
-  name: string;
-  views: number;
-  status: DesignerStatus;
-};
+export default function DesignerStats() {
+  const [stats, setStats] = useState({
+    totalDesigners: 0,
+    totalViews: 0,
+    pendingDesigners: 0,
+    totalProjects: 0,
+    publishedProjects: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
-export type AdminProject = {
-  id: string;
-  designerId: string;
-  isPublished: boolean;
-};
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true);
+      try {
+        // Fetch designers
+        const designersRef = collection(db, "interinestUsers");
+        const designersQuery = query(designersRef, where("role", "==", "designer"));
+        const designersSnapshot = await getDocs(designersQuery);
 
-type Props = {
-  designers: Designer[];
-  projects: AdminProject[];
-};
+        const totalDesigners = designersSnapshot.size;
+        let totalViews = 0;
+        let pendingDesigners = 0;
 
-export default function DesignerStats({ designers, projects }: Props) {
-  const byDesigner = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const p of projects) {
-      counts.set(p.designerId, (counts.get(p.designerId) ?? 0) + 1);
-    }
-    return counts;
-  }, [projects]);
+        designersSnapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          totalViews += data.views || 0;
+          if (data.status === "pending") pendingDesigners++;
+        });
+
+        // Fetch projects
+        const projectsRef = collection(db, "projects");
+        const projectsSnapshot = await getDocs(projectsRef);
+
+        const totalProjects = projectsSnapshot.size;
+        let publishedProjects = 0;
+
+        projectsSnapshot.docs.forEach((doc) => {
+          if (doc.data().isPublished) publishedProjects++;
+        });
+
+        setStats({
+          totalDesigners,
+          totalViews,
+          pendingDesigners,
+          totalProjects,
+          publishedProjects,
+        });
+      } catch (err) {
+        console.error("Failed to load designer stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="rounded-lg border bg-white shadow-sm">
+        <div className="px-4 py-3 text-sm text-slate-500">Loading stats...</div>
+      </section>
+    );
+  }
 
   return (
-    <section className="rounded-lg border bg-white shadow-sm">
-      <div className="px-4 py-3 border-b">
-        <h2 className="text-sm font-semibold text-slate-900">Designer Stats</h2>
-        <p className="text-xs text-slate-500">Projects and views by designer</p>
+    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {/* Total Designers */}
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="text-xs font-semibold text-slate-600 uppercase">Designers</div>
+        <div className="mt-2 text-3xl font-bold text-slate-900">{stats.totalDesigners}</div>
       </div>
 
-      <div className="divide-y">
-        {designers.map((d) => {
-          const projectCount = byDesigner.get(d.id) ?? 0;
-          return (
-            <div key={d.id} className="px-4 py-3 flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-slate-900">{d.name}</div>
-                <div className="text-xs text-slate-500">
-                  {projectCount} projects • {d.views.toLocaleString()} views
-                </div>
-              </div>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full ${
-                  d.status === "approved"
-                    ? "bg-green-100 text-green-700"
-                    : d.status === "pending"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-red-100 text-red-700"
-                }`}
-              >
-                {d.status}
-              </span>
-            </div>
-          );
-        })}
+      {/* Total Projects */}
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="text-xs font-semibold text-slate-600 uppercase">Projects</div>
+        <div className="mt-2 text-3xl font-bold text-slate-900">{stats.totalProjects}</div>
+      </div>
+
+      {/* Designer Views */}
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="text-xs font-semibold text-slate-600 uppercase">Designer Views</div>
+        <div className="mt-2 text-3xl font-bold text-slate-900">{stats.totalViews.toLocaleString()}</div>
+      </div>
+
+      {/* Pending */}
+      <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 shadow-sm">
+        <div className="text-xs font-semibold text-yellow-700 uppercase">Pending</div>
+        <div className="mt-2 text-3xl font-bold text-yellow-700">{stats.pendingDesigners}</div>
+      </div>
+
+      {/* Published Projects */}
+      <div className="rounded-lg border border-green-200 bg-green-50 p-4 shadow-sm">
+        <div className="text-xs font-semibold text-green-700 uppercase">Published Projects</div>
+        <div className="mt-2 text-3xl font-bold text-green-700">{stats.publishedProjects}</div>
       </div>
     </section>
   );

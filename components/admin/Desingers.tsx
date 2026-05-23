@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { db } from "@/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 
@@ -23,6 +24,7 @@ type DesingersProps = {
 };
 
 export default function Desingers({ recent = false, pageSize = 10, showPagination = false }: DesingersProps) {
+  const router = useRouter();
   const [designers, setDesigners] = useState<DesignerUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +100,11 @@ export default function Desingers({ recent = false, pageSize = 10, showPaginatio
               </thead>
               <tbody>
                 {displayDesigners.map((user) => (
-                  <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
+                  <tr 
+                    key={user.id} 
+                    className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition"
+                    onClick={() => router.push(`/admin/designers/${user.id}`)}
+                  >
                     <td className="py-2 pr-3 font-medium text-slate-700">
                       {user.fullName || "Untitled"}
                       <div className="text-[12px] text-slate-500">{user.email || "no-email"}</div>
